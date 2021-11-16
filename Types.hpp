@@ -32,16 +32,6 @@ public:
 		_value = Limit<Percent_t>(value, Min, Max);
 	}
 
-	operator const Percent_t()
-	{
-		return Get();
-	}
-
-	operator Percent_t()
-	{
-		return Get();
-	}
-
 private:
 	Percent_t _value;
 };

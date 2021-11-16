@@ -28,12 +28,12 @@ public:
 
 	void Displace()
 	{
-		auto rpm = Map<Rpm>(_capacity, Percent::Min, Percent::Max, _minRpm, _maxRpm);
-		auto displacementM3 = (_suction.GetDensity() * _volume * rpm);
+		auto rpm = Map<Rpm>(_capacity.Get(), Percent::Min, Percent::Max, _minRpm, _maxRpm);
+		auto displacementM3 = (_suction.GetFluid().GetDensity() * _volume * rpm);
 
-		_suction.Out(_suction.GetFluid().GetPressure() * _volume);
+		auto actualSucked = _suction.Out(_suction.GetFluid().GetPressure() * displacementM3);
 
-		_discharge.In(_discharge.GetMass() / _discharge.GetFluid().GetPressure());
+		_discharge.In((displacementM3 - actualSucked) / _discharge.GetFluid().GetPressure());
 	}
 
 private:

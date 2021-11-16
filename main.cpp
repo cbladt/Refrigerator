@@ -23,25 +23,29 @@ static constexpr auto PipeVolume()
 
 int main()
 {    
-    Container suction(PipeVolume<30, 1>());
-    Container discharge(PipeVolume<30, 1>());
-    Container afterCondensor(PipeVolume<30, 1>());
-    Container beforeEvaporator(PipeVolume<10, 1>());
+    Container suction(PipeVolume<9999, 9999>());
+    Container discharge(PipeVolume<9999, 9999>());
+    /*Container afterCondensor(PipeVolume<30, 1>());
+    Container beforeEvaporator(PipeVolume<10, 1>());*/
 
     Compressor compressor(1000, 3000, CompressorVolume, suction, discharge);
 
     suction.GetFluid().SetTemperature(InitialSuctionTemperature);
     suction.GetFluid().SetPressure(InitialSuctionPressure);
 
-    afterCondensor.GetFluid().SetTemperature(InitialSuctionTemperature);
-    afterCondensor.GetFluid().SetPressure(InitialSuctionPressure);
+    //afterCondensor.GetFluid().SetTemperature(InitialSuctionTemperature);
+    //afterCondensor.GetFluid().SetPressure(InitialSuctionPressure);
 
     discharge.GetFluid().SetTemperature(InitialDischargeTemperature);
     discharge.GetFluid().SetPressure(InitialDischargePressure);
 
-    afterCondensor.GetFluid().SetTemperature(InitialDischargeTemperature);
-    afterCondensor.GetFluid().SetPressure(InitialDischargePressure);
+    //afterCondensor.GetFluid().SetTemperature(InitialDischargeTemperature);
+    //afterCondensor.GetFluid().SetPressure(InitialDischargePressure);
 
+    while (1 == 1)
+    {
+        compressor.Service();
+    }
 
     return 0;
 }
