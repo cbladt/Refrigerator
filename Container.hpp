@@ -3,12 +3,12 @@
 #include "Types.hpp"
 #include "Fluid.hpp"
 
-template <VolumeM3 Volume>
 class Container
 {
-	Container() :
-		_mass(0),
-		_pressure(0)
+public:
+	Container(VolumeM3 volume) :
+		_volume(volume),
+		_mass(0)
 	{}
 	~Container() = default;
 
@@ -22,7 +22,7 @@ class Container
 	{
 		if (request > _mass)
 		{
-			request = _mass
+			request = _mass;
 		}
 
 		SetMass(_mass - request);
@@ -37,21 +37,22 @@ class Container
 
 	Mass GetMass() const
 	{
-		return _mass:
+		return _mass;
 	}
 
-	Fluid GetFluid() const
+	Fluid& GetFluid()
 	{
 		return _fluid;
 	}
 
 private:
+	VolumeM3 _volume;
 	Mass _mass;
 	Fluid _fluid;
 
 	void SetMass(Mass newMass)
 	{
 		_mass = newMass;
-		_fluid.SetPressure(_mass / Volume);
+		_fluid.SetPressure(_mass / _volume);
 	}
 };

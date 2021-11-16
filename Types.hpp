@@ -2,7 +2,7 @@
 
 #include "Helpers/Limit.hpp"
 
-using FloatingType = float;
+using FloatingType = double;
 
 using Kelvin = FloatingType;
 using BarAbsolute = FloatingType;
@@ -13,9 +13,14 @@ using Mass = FloatingType;
 
 class Percent
 {
+public:
 	using Percent_t = FloatingType;
 	const constexpr static auto Min = 0;
 	const constexpr static auto Max = 100;
+
+	Percent(Percent_t value) :
+		_value(value)
+	{}
 
 	Percent_t Get()
 	{

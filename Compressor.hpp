@@ -1,14 +1,19 @@
 #pragma once
 
 #include "Container.hpp"
+#include "Helpers/Map.hpp"
 
-template <Rpm Min, Rpm Max, VolumeM3 Volume, typename SuctionPort, typename DischargePort>
+template <typename SuctionPort, typename DischargePort>
 class Compressor
 {
 public:
-	Compressor(SuctionPort suction, DischargePort discharge) :
+	Compressor(Rpm minRpm, Rpm maxRpm, VolumeM3 volume, SuctionPort& suction, DischargePort& discharge) :
+		_minRpm(minRpm),
+		_maxRpm(maxRpm),
+		_volume(volume),
 		_suction(suction),
-		_discharge(discharge)
+		_discharge(discharge),
+		_capacity(0)
 	{}
 
 	void Service()
@@ -23,17 +28,20 @@ public:
 
 	void Displace()
 	{
-		auto rpm = Map<Rpm, _capacity, Percent::Min, Percent::Max, Min, Max);
-		auto displacementM3 = (_suction.GetDensity() * Volume * rpm);
+		auto rpm = Map<Rpm>(_capacity, Percent::Min, Percent::Max, _minRpm, _maxRpm);
+		auto displacementM3 = (_suction.GetDensity() * _volume * rpm);
 
-		_suction.Out(_suction.GetFluid().GetPressure() * Volume);
+		_suction.Out(_suction.GetFluid().GetPressure() * _volume);
 
 		_discharge.In(_discharge.GetMass() / _discharge.GetFluid().GetPressure());
 	}
 
 private:
-	SuctionPort _suction;
-	DischargePort _discharge;
+	Rpm _minRpm;
+	Rpm _maxRpm;
+	VolumeM3 _volume;
+	SuctionPort& _suction;
+	DischargePort& _discharge;
 	Percent _capacity;
 };
 
