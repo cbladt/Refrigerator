@@ -67,7 +67,7 @@ private:
 
 	auto DoDisplacement()
 	{
-		auto displacement = (_suction.GetFluid().GetDensity() * _volume * GetRpm());
+		auto displacement = (_suction.GetFluid().GetGasDensity() * _volume * GetRpm());
 		auto flow = _suction.Out(_suction.GetFluid().GetPressure() * displacement);
 		_discharge.In(flow / _discharge.GetFluid().GetPressure());
 

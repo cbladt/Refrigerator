@@ -3,6 +3,8 @@
 #include <atomic>
 #include <limits>
 
+#include "CoolProp.h"
+
 #include "Types.hpp"
 #include "Helpers/Limit.hpp"
 
@@ -10,7 +12,6 @@ class Fluid
 {
 public:
 	Fluid() :
-		_temperature(0),
 		_pressure(0),
 		_enthalpy(0)
 	{}
@@ -52,18 +53,24 @@ public:
 	}
 
 
-	Density GetDensity()
+	Density GetGasDensity()
+	{
+		return CoolProp::PropsSI("D", "T|gas", GetTemperatureK(), "P", GetPressure() * BarAbsoluteToPascal, "HEOS::R134A");
+	}
+
+	Density GetLiquidDensity()
 	{
 		return 1;
 	}
 
-	Temperature GetTemperature() const
+	Temperature GetTemperatureK() const
 	{
-		return _temperature.load();
+		auto enthalpyInJoulePrKg = GetEnthalpy() * EnthalpyKjPrKgToJPrKg;
+		auto pressureInPascal = GetPressure() * BarAbsoluteToPascal;
+		return CoolProp::PropsSI("T", "P", pressureInPascal, "H", enthalpyInJoulePrKg, "HEOS::R134A");
 	}
 
 private:
-	std::atomic<Temperature> _temperature;
 	std::atomic<Pressure> _pressure;
 	std::atomic<Enthalpy> _enthalpy;
 };
