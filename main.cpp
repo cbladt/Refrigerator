@@ -44,17 +44,24 @@ int main()
     //afterCondensor.GetFluid().SetTemperature(InitialDischargeTemperature);
     //afterCondensor.GetFluid().SetPressure(InitialDischargePressure);
 
-    for (auto n = 0; n < 10000; n++)
-    {                        
+    auto debug = [&](auto flow)
+    {
+        std::cout << "PSuc\t" << std::to_string(suction.GetFluid().GetPressure()) << std::endl;
+        std::cout << "HSuc\t" << std::to_string(suction.GetFluid().GetEnthalpy()) << std::endl;
+        std::cout << "PDis\t" << std::to_string(discharge.GetFluid().GetPressure()) << std::endl;
+        std::cout << "HDis\t" << std::to_string(discharge.GetFluid().GetEnthalpy()) << std::endl;
+        std::cout << "Flow\t" << std::to_string(flow) << std::endl << std::endl;
+    };
+
+    debug(-1);
+
+    for (auto n = 0; n < 5; n++)
+    {
         auto flow = compressor.Displace();
 
-        if (n % 1000 == 0)
+        //if (n % 1000 == 0)
         {
-            std::cout << "PSuc\t" << std::to_string(suction.GetFluid().GetPressure()) << std::endl;
-            std::cout << "HSuc\t" << std::to_string(suction.GetFluid().GetEnthalpy()) << std::endl;
-            std::cout << "PDis\t" << std::to_string(discharge.GetFluid().GetPressure()) << std::endl;
-            std::cout << "HDis\t" << std::to_string(discharge.GetFluid().GetEnthalpy()) << std::endl;
-            std::cout << "Flow\t" << std::to_string(flow) << std::endl << std::endl;
+            debug(flow);
         }
     }
 

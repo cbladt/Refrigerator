@@ -1,5 +1,9 @@
 #pragma once
 
+#include <iostream>
+
+#include "CoolProp.h"
+
 #include "Container.hpp"
 #include "Helpers/Map.hpp"
 
@@ -40,11 +44,10 @@ public:
 		// Do the blowing.
 		_discharge.In(flow / _discharge.GetFluid().GetPressure());
 
-		auto workW = flow * (_discharge.GetFluid().GetEnthalpy() - _suction.GetFluid().GetEnthalpy());
-		workW *= (_efficiency / 100);
-		auto workKj = (workW / (rpm / 60)) / 1000;
-		auto deltaTemperature = _discharge.GetFluid().GetTemperature() - _suction.GetFluid().GetTemperature();
-		auto enthalpy = workKj / _volume * deltaTemperature;
+		auto enthropy = CoolProp::PropsSI("S", "H", _suction.GetFluid().GetEnthalpy() * 1000, "P", _suction.GetFluid().GetPressure() * BarAbsoluteToPascal, "HESO::R134A");
+		std::cout << std::to_string(enthropy) << std::endl;
+		auto enthalpy = CoolProp::PropsSI("H", "P", _discharge.GetFluid().GetPressure() * BarAbsoluteToPascal, "S", enthropy, "HESO::R134A") * 1000;
+		std::cout << std::to_string(enthalpy) << std::endl;
 		_discharge.GetFluid().AddEnthalpy(enthalpy);
 		_suction.GetFluid().AddEnthalpy(enthalpy / -1);
 

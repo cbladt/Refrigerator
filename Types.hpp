@@ -7,6 +7,7 @@ using FloatingType = double;
 using Kelvin = FloatingType;
 
 using BarAbsolute = FloatingType;
+static const constexpr auto BarAbsoluteToPascal = 100000;
 
 using EnthalpyKjKg = FloatingType;
 
