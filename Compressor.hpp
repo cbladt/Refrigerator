@@ -42,8 +42,7 @@ public:
 
 		auto workW = flow * (_discharge.GetFluid().GetEnthalpy() - _suction.GetFluid().GetEnthalpy());
 		workW *= (_efficiency / 100);
-		auto workJ = workW / (rpm / 60);
-		auto workKj = workJ / 1000;
+		auto workKj = (workW / (rpm / 60)) / 1000;
 		auto deltaTemperature = _discharge.GetFluid().GetTemperature() - _suction.GetFluid().GetTemperature();
 		auto enthalpy = workKj / _volume * deltaTemperature;
 		_discharge.GetFluid().AddEnthalpy(enthalpy);
