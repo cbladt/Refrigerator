@@ -9,9 +9,10 @@ static const constexpr FloatingType CompressorBoreMm = 55;
 static const constexpr FloatingType CompressorStrokeMm = 39.3;
 static const constexpr VolumeM3 CompressorVolume = CompressorCylinders * ((3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm) * 0.000000001);
 
-static const constexpr Kelvin InitialDischargeTemperature = 273.15f + 40.f;
+static const constexpr EnthalpyKjKg InitialDischargeEnthalpy = 260;
 static const constexpr BarAbsolute InitialDischargePressure = 6;
-static const constexpr Kelvin InitialSuctionTemperature = 273.15f + 5.f;
+
+static const constexpr EnthalpyKjKg InitialSuctionEnthalpy = 400;
 static const constexpr BarAbsolute InitialSuctionPressure = 4;
 
 template <auto LengthCm, auto DiameterCm>
@@ -23,28 +24,38 @@ static constexpr auto PipeVolume()
 
 int main()
 {    
-    Container suction(PipeVolume<9999, 9999>());
-    Container discharge(PipeVolume<9999, 9999>());
+    Container suction(PipeVolume<100, 10>(), 30000);
+    Container discharge(PipeVolume<100, 10>(), 70000);
     /*Container afterCondensor(PipeVolume<30, 1>());
     Container beforeEvaporator(PipeVolume<10, 1>());*/
 
-    Compressor compressor(1000, 3000, CompressorVolume, suction, discharge);
+    Compressor compressor(1000, 3000, 100, CompressorVolume, suction, discharge);
+    compressor.SetCapacity(25);
 
-    suction.GetFluid().SetTemperature(InitialSuctionTemperature);
+    suction.GetFluid().SetEnthalpy(InitialSuctionEnthalpy);
     suction.GetFluid().SetPressure(InitialSuctionPressure);
 
     //afterCondensor.GetFluid().SetTemperature(InitialSuctionTemperature);
     //afterCondensor.GetFluid().SetPressure(InitialSuctionPressure);
 
-    discharge.GetFluid().SetTemperature(InitialDischargeTemperature);
+    discharge.GetFluid().SetEnthalpy(InitialDischargeEnthalpy);
     discharge.GetFluid().SetPressure(InitialDischargePressure);
 
     //afterCondensor.GetFluid().SetTemperature(InitialDischargeTemperature);
     //afterCondensor.GetFluid().SetPressure(InitialDischargePressure);
 
-    while (1 == 1)
-    {
-        compressor.Service();
+    for (auto n = 0; n < 10000; n++)
+    {                        
+        auto flow = compressor.Displace();
+
+        if (n % 1000 == 0)
+        {
+            std::cout << "PSuc\t" << std::to_string(suction.GetFluid().GetPressure()) << std::endl;
+            std::cout << "HSuc\t" << std::to_string(suction.GetFluid().GetEnthalpy()) << std::endl;
+            std::cout << "PDis\t" << std::to_string(discharge.GetFluid().GetPressure()) << std::endl;
+            std::cout << "HDis\t" << std::to_string(discharge.GetFluid().GetEnthalpy()) << std::endl;
+            std::cout << "Flow\t" << std::to_string(flow) << std::endl << std::endl;
+        }
     }
 
     return 0;

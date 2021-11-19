@@ -7,38 +7,55 @@ template <typename SuctionPort, typename DischargePort>
 class Compressor
 {
 public:
-	Compressor(Rpm minRpm, Rpm maxRpm, VolumeM3 volume, SuctionPort& suction, DischargePort& discharge) :
+	Compressor(Rpm minRpm, Rpm maxRpm, Percent efficiency, VolumeM3 volume, SuctionPort& suction, DischargePort& discharge) :
 		_minRpm(minRpm),
 		_maxRpm(maxRpm),
+		_efficiency(efficiency),
 		_volume(volume),
 		_suction(suction),
 		_discharge(discharge),
 		_capacity(0)
 	{}
 
-	void Service()
-	{
-		Displace();
-	}
-
 	void SetCapacity(Percent capacity)
 	{
 		_capacity = capacity;
 	}
 
-	void Displace()
+	auto Displace()
 	{
-		auto rpm = Map<Rpm>(_capacity.Get(), Percent::Min, Percent::Max, _minRpm, _maxRpm);
-		auto displacementM3 = (_suction.GetFluid().GetDensity() * _volume * rpm);
+		auto rpm = Map<Rpm>(_capacity, PercentMin, PercentMax, _minRpm, _maxRpm);
 
-		auto actualSucked = _suction.Out(_suction.GetFluid().GetPressure() * displacementM3);
+		if (_capacity == 0)
+		{
+			rpm = 0;
+		}
 
-		_discharge.In((displacementM3 - actualSucked) / _discharge.GetFluid().GetPressure());
+		// Ideal amount of suck.
+		auto displacement = (_suction.GetFluid().GetDensity() * _volume * rpm);
+
+		// Do the sucking.
+		auto flow = _suction.Out(_suction.GetFluid().GetPressure() * displacement);
+
+		// Do the blowing.
+		_discharge.In(flow / _discharge.GetFluid().GetPressure());
+
+		auto workW = flow * (_discharge.GetFluid().GetEnthalpy() - _suction.GetFluid().GetEnthalpy());
+		workW *= (_efficiency / 100);
+		auto workJ = workW / (rpm / 60);
+		auto workKj = workJ / 1000;
+		auto deltaTemperature = _discharge.GetFluid().GetTemperature() - _suction.GetFluid().GetTemperature();
+		auto enthalpy = workKj / _volume * deltaTemperature;
+		_discharge.GetFluid().AddEnthalpy(enthalpy);
+		_suction.GetFluid().AddEnthalpy(enthalpy / -1);
+
+		return flow;
 	}
 
 private:
 	Rpm _minRpm;
-	Rpm _maxRpm;
+	Rpm _maxRpm;	
+	Percent _efficiency;
 	VolumeM3 _volume;
 	SuctionPort& _suction;
 	DischargePort& _discharge;

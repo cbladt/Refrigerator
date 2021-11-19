@@ -6,10 +6,11 @@
 class Container
 {
 public:
-	Container(VolumeM3 volume) :
-		_volume(volume),
-		_mass(0)
-	{}
+	Container(VolumeM3 volume, Mass initialMass) :
+		_volume(volume)
+	{
+		SetMass(initialMass);
+	}
 	~Container() = default;
 
 	Container(const Container&) = delete;
@@ -25,9 +26,14 @@ public:
 			request = _mass;
 		}
 
-		SetMass(_mass - request);
-
-		return request;
+		if ((_mass - request) > 0.000001f)
+		{
+			SetMass(_mass - request);
+		}
+		else
+		{
+			return request;
+		}
 	}
 
 	void In(Mass request)
