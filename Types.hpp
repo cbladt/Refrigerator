@@ -4,18 +4,19 @@
 
 using FloatingType = double;
 
-using Kelvin = FloatingType;
+using Temperature = FloatingType;
 
-using BarAbsolute = FloatingType;
+using Pressure = FloatingType;
 static const constexpr auto BarAbsoluteToPascal = 100000;
 
-using EnthalpyKjKg = FloatingType;
+using Enthalpy = FloatingType;
+static const constexpr auto EnthalpyKjPrKgToJPrKg = 1000;
 
-using DensityKgM3 = FloatingType;
+using Density = FloatingType;
 
 using Rpm = FloatingType;
 
-using VolumeM3 = FloatingType;
+using Volume = FloatingType;
 
 using Mass = FloatingType;
 

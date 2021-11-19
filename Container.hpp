@@ -6,7 +6,7 @@
 class Container
 {
 public:
-	Container(VolumeM3 volume, Mass initialMass) :
+	Container(Volume volume, Mass initialMass) :
 		_volume(volume)
 	{
 		SetMass(initialMass);
@@ -52,7 +52,7 @@ public:
 	}
 
 private:
-	VolumeM3 _volume;
+	Volume _volume;
 	Mass _mass;
 	Fluid _fluid;
 

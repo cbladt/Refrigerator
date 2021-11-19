@@ -1,8 +1,10 @@
 #pragma once
 
 #include <atomic>
+#include <limits>
 
 #include "Types.hpp"
+#include "Helpers/Limit.hpp"
 
 class Fluid
 {
@@ -21,60 +23,47 @@ public:
 	Fluid& operator=(Fluid&&) = default;
 
 
-	void SetPressure(BarAbsolute pressure)
+	void SetPressure(Pressure pressure)
 	{
-		if (pressure > 0)
-		{			
-			_pressure.store(pressure);
-		}
-		else
-		{
-			throw "Fluid::SetPressure(): Negative Pressure";
-		}
+		pressure = Limit<Pressure>(pressure, 0, std::numeric_limits<Pressure>::max());
+		_pressure.store(pressure);
 	}
 
-	BarAbsolute GetPressure() const
+	Pressure GetPressure() const
 	{
 		return _pressure.load();
 	}
 
 
-	void SetEnthalpy(EnthalpyKjKg enthalpy)
+	void SetEnthalpy(Enthalpy enthalpy)
 	{
-		if (enthalpy > 0)
-		{
-			_enthalpy.store(enthalpy);
-		}
-		else
-		{
-			throw "Fluid::SetEnthalpy(): Negative Enthalpy";
-		}
-
+		enthalpy = Limit<Enthalpy>(enthalpy, 0, std::numeric_limits<Enthalpy>::max());
+		_enthalpy.store(enthalpy);
 	}
 
-	void AddEnthalpy(EnthalpyKjKg enthalpy)
+	void AddEnthalpy(Enthalpy enthalpy)
 	{
-		_enthalpy.store(enthalpy + _enthalpy.load());
+		SetEnthalpy(enthalpy + _enthalpy.load());
 	}
 
-	EnthalpyKjKg GetEnthalpy() const
+	Enthalpy GetEnthalpy() const
 	{
 		return _enthalpy.load();
 	}
 
 
-	DensityKgM3 GetDensity()
+	Density GetDensity()
 	{
 		return 1;
 	}
 
-	Kelvin GetTemperature() const
+	Temperature GetTemperature() const
 	{
 		return _temperature.load();
 	}
 
 private:
-	std::atomic<Kelvin> _temperature;
-	std::atomic<BarAbsolute> _pressure;
-	std::atomic<EnthalpyKjKg> _enthalpy;
+	std::atomic<Temperature> _temperature;
+	std::atomic<Pressure> _pressure;
+	std::atomic<Enthalpy> _enthalpy;
 };
