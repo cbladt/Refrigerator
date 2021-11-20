@@ -1,31 +1,42 @@
 #include <iostream>
 
-#include "Types.hpp"
-#include "Compressor.hpp"
-#include "Container.hpp"
+#include <Types/FloatingType.hpp>
+#include <Types/Volume.hpp>
+#include <Types/Enthalpy.hpp>
+#include <Types/Pressure.hpp>
 
-static const constexpr FloatingType CompressorCylinders = 4;
+#include <Components/Compressor.hpp>
+#include <Components/Container.hpp>
+
+#include <FluidCalculator.hpp>
+
+static const constexpr FloatingType CompressorCylinders = 1;
 static const constexpr FloatingType CompressorBoreMm = 55;
 static const constexpr FloatingType CompressorStrokeMm = 39.3;
-static const constexpr Volume CompressorVolume = CompressorCylinders * ((3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm) * 0.000000001);
+static const constexpr Volume CompressorVolume = Volume::FromM3(CompressorCylinders * ((3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm) / 1000000000));
 
-static const constexpr Enthalpy InitialDischargeEnthalpy = 260;
-static const constexpr Pressure InitialDischargePressure = 6;
+static const constexpr Enthalpy InitialDischargeEnthalpy = Enthalpy::FromKjPrKg(260);
+static const constexpr Pressure InitialDischargePressure = Pressure::FromBar(6);
 
-static const constexpr Enthalpy InitialSuctionEnthalpy = 400;
-static const constexpr Pressure InitialSuctionPressure = 4;
+static const constexpr Enthalpy InitialSuctionEnthalpy = Enthalpy::FromKjPrKg(400);
+static const constexpr Pressure InitialSuctionPressure = Pressure::FromBar(4);
+
+using Calculator_t = FluidCalculator<1341>;
+using Fluid_t = Fluid<Calculator_t>;
+using Container_t = Container<Fluid_t>;
 
 template <auto LengthCm, auto DiameterCm>
 static constexpr auto PipeVolume()
 {
     auto radius = static_cast<FloatingType>(DiameterCm)/2.f;
-    return LengthCm * (3.14f * (radius * radius));
+    auto volume = LengthCm * (3.14f * (radius * radius));
+    return Volume::FromM3(volume);
 }
 
 int main()
 {    
-    Container suction(PipeVolume<100, 10>(), 30000);
-    Container discharge(PipeVolume<100, 10>(), 70000);
+    Container_t suction(PipeVolume<100, 10>(), Mass::FromKg(30000));
+    Container_t discharge(PipeVolume<100, 10>(), Mass::FromKg(70000));
     /*Container afterCondensor(PipeVolume<30, 1>());
     Container beforeEvaporator(PipeVolume<10, 1>());*/
 
@@ -46,10 +57,10 @@ int main()
 
     auto debug = [&](auto flow)
     {
-        std::cout << "PSuc\t" << std::to_string(suction.GetFluid().GetPressure()) << std::endl;
-        std::cout << "HSuc\t" << std::to_string(suction.GetFluid().GetEnthalpy()) << std::endl;
-        std::cout << "PDis\t" << std::to_string(discharge.GetFluid().GetPressure()) << std::endl;
-        std::cout << "HDis\t" << std::to_string(discharge.GetFluid().GetEnthalpy()) << std::endl;
+        std::cout << "PSuc\t" << std::to_string(suction.GetFluid().GetPressure().GetBar()) << std::endl;
+        std::cout << "HSuc\t" << std::to_string(suction.GetFluid().GetEnthalpy().GetKjPrKg()) << std::endl;
+        std::cout << "PDis\t" << std::to_string(discharge.GetFluid().GetPressure().GetBar()) << std::endl;
+        std::cout << "HDis\t" << std::to_string(discharge.GetFluid().GetEnthalpy().GetKjPrKg()) << std::endl;
         std::cout << "Flow\t" << std::to_string(flow) << std::endl << std::endl;
     };
 

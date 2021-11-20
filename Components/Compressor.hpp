@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-#include "CoolProp.h"
+#include <Types/Rpm.hpp>
+#include <Types/Percent.hpp>
 
 #include "Container.hpp"
 #include "Helpers/Map.hpp"
@@ -11,6 +12,8 @@ template <typename SuctionPort, typename DischargePort>
 class Compressor
 {
 public:
+    using FluidCalculator = typename SuctionPort::Fluid::Calculator;
+
 	Compressor(Rpm minRpm, Rpm maxRpm, Percent efficiency, Volume volume, SuctionPort& suction, DischargePort& discharge) :
 		_minRpm(minRpm),
 		_maxRpm(maxRpm),
@@ -27,14 +30,13 @@ public:
 	}
 
 	auto Displace()
-	{
-
-		auto suctionEnthalpyInJoulePrKg = _suction.GetFluid().GetEnthalpy() * EnthalpyKjPrKgToJPrKg;
-		auto suctionPressureInPascal = _suction.GetFluid().GetPressure() * BarAbsoluteToPascal;
+	{     
+        auto suctionEnthalpy = _suction.GetFluid().GetEnthalpy();
+        auto suctionPressure = _suction.GetFluid().GetPressure();
 
 		auto flow = DoDisplacement();
 
-		auto enthropy = EnthropyCalculation(suctionEnthalpyInJoulePrKg, suctionPressureInPascal);
+        auto enthropy = EnthropyCalculation(suctionEnthalpy, suctionPressure);
 
 		auto enthalpy = EnthalpyCalculation(enthropy);
 
@@ -55,7 +57,7 @@ private:
 
 	auto GetRpm() const
 	{
-		auto rpm = Map<Rpm>(_capacity, PercentMin, PercentMax, _minRpm, _maxRpm);
+        auto rpm = Map<Rpm>(_capacity, Percent::Min, Percent::Max, _minRpm, _maxRpm);
 
                 if (_capacity == 0)
                 {
@@ -67,7 +69,8 @@ private:
 
 	auto DoDisplacement()
 	{
-		auto displacement = (_suction.GetFluid().GetGasDensity() * _volume * GetRpm());
+        auto density = _suction.GetFluid().GetGasDensity();
+        auto displacement = (density * _volume * GetRpm());
 		auto flow = _suction.Out(_suction.GetFluid().GetPressure() * displacement);
 		_discharge.In(flow / _discharge.GetFluid().GetPressure());
 
@@ -77,7 +80,7 @@ private:
 	template<typename T1, typename T2>
 	auto EnthropyCalculation(T1 suctionEnthalpyInJoulePrKg, T2 suctionPressureInPascal)
 	{
-		auto enthropy = CoolProp::PropsSI("S", "H", suctionEnthalpyInJoulePrKg, "P", suctionPressureInPascal, "HEOS::R134A");
+        auto enthropy = FluidCalculator::EnthropyFromEnthalpyAndPressure(suctionEnthalpyInJoulePrKg, suctionPressureInPascal);
 		enthropy *= (_efficiency / 100);
 
 		std::cout << "enthropy " << std::to_string(enthropy) << std::endl;
@@ -88,8 +91,7 @@ private:
 	template<typename T1>
 	auto EnthalpyCalculation(T1 enthropy)
 	{
-		auto dischargePressureInPascal = _discharge.GetFluid().GetPressure() * BarAbsoluteToPascal;
-		auto enthalpy = CoolProp::PropsSI("H", "P", dischargePressureInPascal, "S", enthropy, "HEOS::R134A") / EnthalpyKjPrKgToJPrKg;
+        auto enthalpy = FluidCalculator::EnthalpyFromPressureAndEnthropy(_discharge.GetFluid().GetPressure(), enthropy);
 
 		std::cout << "enthalpy " << std::to_string(enthalpy) << std::endl;
 

@@ -1,11 +1,16 @@
 #pragma once
 
-#include "Types.hpp"
-#include "Fluid.hpp"
+#include <Types/Mass.hpp>
+#include <Types/Volume.hpp>
 
+#include <Fluid.hpp>
+
+template <typename Fluid_t>
 class Container
 {
 public:
+    using Fluid = Fluid_t;
+
 	Container(Volume volume, Mass initialMass) :
 		_volume(volume)
 	{
@@ -29,6 +34,7 @@ public:
 		if ((_mass - request) > 0.000001f)
 		{
 			SetMass(_mass - request);
+            return 0;
 		}
 		else
 		{
@@ -56,9 +62,9 @@ private:
 	Mass _mass;
 	Fluid _fluid;
 
-	void SetMass(Mass newMass)
+    void SetMass(Mass& newMass)
 	{
 		_mass = newMass;
-		_fluid.SetPressure(_mass / _volume);
+        _fluid.SetPressure(Pressure::FromBar(_mass.GetKg() / _volume.GetM3()));
 	}
 };

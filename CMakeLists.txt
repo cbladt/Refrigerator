@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(Refrigerator main.cpp)
+target_include_directories(Refrigerator PUBLIC .)
 
 set(COOLPROP_STATIC_LIBRARY true)
 add_subdirectory ("${CMAKE_SOURCE_DIR}/CoolProp" CoolProp)

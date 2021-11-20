@@ -3,14 +3,19 @@
 #include <atomic>
 #include <limits>
 
-#include "CoolProp.h"
+#include <Types/Pressure.hpp>
+#include <Types/Enthalpy.hpp>
+#include <Types/Density.hpp>
+#include <Types/Temperature.hpp>
 
-#include "Types.hpp"
 #include "Helpers/Limit.hpp"
 
+template <typename Calculator_t>
 class Fluid
 {
 public:
+    using Calculator = Calculator_t;
+
 	Fluid() :
 		_pressure(0),
 		_enthalpy(0)
@@ -43,7 +48,7 @@ public:
 	}
 
 	void AddEnthalpy(Enthalpy enthalpy)
-	{
+	{        
 		SetEnthalpy(enthalpy + _enthalpy.load());
 	}
 
@@ -53,21 +58,15 @@ public:
 	}
 
 
-	Density GetGasDensity()
+    Density GetGasDensity()
 	{
-		return CoolProp::PropsSI("D", "T|gas", GetTemperatureK(), "P", GetPressure() * BarAbsoluteToPascal, "HEOS::R134A");
-	}
-
-	Density GetLiquidDensity()
-	{
-		return 1;
+        return Calculator::GasDensityFromPressureAndTemperature(GetPressure(), GetTemperatureK());
 	}
 
 	Temperature GetTemperatureK() const
 	{
-		auto enthalpyInJoulePrKg = GetEnthalpy() * EnthalpyKjPrKgToJPrKg;
-		auto pressureInPascal = GetPressure() * BarAbsoluteToPascal;
-		return CoolProp::PropsSI("T", "P", pressureInPascal, "H", enthalpyInJoulePrKg, "HEOS::R134A");
+
+        return Calculator::TemperatureFromPressureAndEnthalpy(GetPressure(), GetEnthalpy());
 	}
 
 private:
