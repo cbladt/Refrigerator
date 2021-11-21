@@ -59,7 +59,7 @@ private:
 
 	auto GetRpm() const
 	{
-        auto rpm = Map<Rpm>(_capacity, Percent::Min, Percent::Max, _minRpm, _maxRpm);
+        auto rpm = Map<Rpm>(_capacity, PercentMin, PercentMax, _minRpm, _maxRpm);
 
                 if (_capacity == 0)
                 {

@@ -31,7 +31,10 @@ public:
 
 	void SetPressure(Pressure pressure)
 	{
-        _pressure = Limit<Pressure>(pressure, 0, std::numeric_limits<Pressure>::max());
+        if (pressure.GetBar() > 0)
+        {
+            _pressure = pressure;
+        }
 	}
 
 	Pressure GetPressure() const
@@ -42,11 +45,14 @@ public:
 
 	void SetEnthalpy(Enthalpy enthalpy)
 	{
-        _enthalpy = Limit<Enthalpy>(enthalpy, 0, std::numeric_limits<Enthalpy>::max());
+        if (enthalpy.GetKjPrKg() > 0)
+        {
+            _enthalpy = enthalpy;
+        }
 	}
 
 	void AddEnthalpy(Enthalpy enthalpy)
-	{        
+	{                                   
         SetEnthalpy(enthalpy + _enthalpy);
 	}
 

@@ -14,9 +14,9 @@ public:
 	Container(Volume volume, Mass initialMass) :
         _volume(volume),
         _mass(0)
-	{
-        SetMass(initialMass.GetKg());
-	}
+    {
+        SetMass(initialMass);
+    }
 	~Container() = default;
 
 	Container(const Container&) = delete;
@@ -66,7 +66,7 @@ private:
     template <typename T>
     void SetMass(T newMass)
 	{
-        _mass = Mass::FromKg(newMass);
+        _mass = newMass;
         _fluid.SetPressure(Pressure::FromBar(_mass.GetKg() / _volume.GetM3()));
 	}
 };

@@ -1,39 +1,19 @@
 #pragma once
 
 #include <Types/FloatingType.hpp>
-#include <Types/NumericTypeBase.hpp>
 
-class Pressure :
-        public NumericTypeBase<FloatingType>
+class Pressure
 {
 public:
     constexpr Pressure(FloatingType pascal) :
-        NumericTypeBase(_pascal),
         _pascal(pascal)
     {}
 
-    Pressure(const Pressure& other) :
-        NumericTypeBase(_pascal)
-    {
-        _pascal = other._pascal;
-    }
-
-    Pressure operator=(const Pressure& other)
-    {
-        return Pressure(other._pascal);
-    }
-
-    Pressure(Pressure&& other) :
-        NumericTypeBase(_pascal)
-    {
-        _pascal = other._pascal;
-    }
-
-    Pressure operator=(Pressure&& other)
-    {
-        return Pressure(other._pascal);
-    }
-
+#define Type Pressure
+#define Value _pascal
+#include <Types/Operators.inc>
+#undef Value
+#undef Type
 
     static constexpr Pressure FromPascal(FloatingType pascal)
     {
