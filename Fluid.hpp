@@ -35,6 +35,10 @@ public:
         {
             _pressure = pressure;
         }
+        else
+        {
+            _pressure = 0;
+        }
 	}
 
 	Pressure GetPressure() const
@@ -48,6 +52,10 @@ public:
         if (enthalpy.GetKjPrKg() > 0)
         {
             _enthalpy = enthalpy;
+        }
+        else
+        {
+            _enthalpy = 0;
         }
 	}
 

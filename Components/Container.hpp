@@ -32,15 +32,8 @@ public:
 			request = _mass;
 		}
 
-        if ((_mass - request) > Mass::FromKg(0))
-		{
-            SetMass(_mass - request);
-            return 0;
-		}
-		else
-		{
-			return request;
-		}
+        SetMass(_mass - request);
+        return request;
 	}
 
 	void In(Mass request)
@@ -65,7 +58,7 @@ private:
 
     template <typename T>
     void SetMass(T newMass)
-	{
+    {
         _mass = newMass;
         _fluid.SetPressure(Pressure::FromBar(_mass.GetKg() / _volume.GetM3()));
 	}

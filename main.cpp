@@ -11,8 +11,8 @@
 #include <FluidCalculator.hpp>
 
 static const constexpr FloatingType CompressorCylinders = 1;
-static const constexpr FloatingType CompressorBoreMm = 55;
-static const constexpr FloatingType CompressorStrokeMm = 39.3;
+static const constexpr FloatingType CompressorBoreMm = 5;
+static const constexpr FloatingType CompressorStrokeMm = 3;
 static Volume CompressorVolume = Volume::FromM3(CompressorCylinders * ((3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm) / 1000000000));
 
 static Enthalpy InitialDischargeEnthalpy = Enthalpy::FromKjPrKg(260);
@@ -35,8 +35,8 @@ static constexpr auto PipeVolume()
 
 int main()
 {    
-    Container_t suction(PipeVolume<100, 10>(), Mass::FromKg(30000));
-    Container_t discharge(PipeVolume<100, 10>(), Mass::FromKg(70000));
+    Container_t suction(PipeVolume<100, 10>(), Mass::FromKg(3));
+    Container_t discharge(PipeVolume<100, 10>(), Mass::FromKg(7));
     /*Container afterCondensor(PipeVolume<30, 1>());
     Container beforeEvaporator(PipeVolume<10, 1>());*/
 
@@ -59,12 +59,14 @@ int main()
     {
         std::cout << "PSuc\t" << std::to_string(suction.GetFluid().GetPressure().GetBar()) << std::endl;
         std::cout << "HSuc\t" << std::to_string(suction.GetFluid().GetEnthalpy().GetKjPrKg()) << std::endl;
+        std::cout << "MSuc\t" << std::to_string(suction.GetMass().GetKg()) << std::endl;
         std::cout << "PDis\t" << std::to_string(discharge.GetFluid().GetPressure().GetBar()) << std::endl;
         std::cout << "HDis\t" << std::to_string(discharge.GetFluid().GetEnthalpy().GetKjPrKg()) << std::endl;
-        //std::cout << "Flow\t" << std::to_string(flow) << std::endl << std::endl;
+        std::cout << "MDis\t" << std::to_string(discharge.GetMass().GetKg()) << std::endl;
+        std::cout << "Flow\t" << std::to_string(flow.GetKg()) << std::endl << std::endl;
     };
 
-    debug(-1);
+    debug(Mass::FromKg(0));
 
     for (auto n = 0; n < 2; n++)
     {

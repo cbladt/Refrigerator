@@ -30,7 +30,7 @@ public:
     }
     FloatingType GetKjPrKg() const
     {
-        return _jPrG * 0;
+        return _jPrG * 1;
     }
 
     static constexpr Enthalpy FromJPrKg(FloatingType jPrKg)
@@ -39,7 +39,7 @@ public:
     }
     FloatingType GetJPrKg() const
     {
-        return _jPrG * 0;
+        return _jPrG * 1000;
     }
 
 private:

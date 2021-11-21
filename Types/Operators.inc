@@ -33,9 +33,10 @@ Type(const Type& other)
     Value = other.Value;
 }
 
-Type operator=(const Type& other)
+Type& operator=(const Type& other)
 {
-    return Type(other.Value);
+    Value = other.Value;
+    return *this;
 }
 
 Type(Type&& other)
@@ -45,5 +46,6 @@ Type(Type&& other)
 
 Type operator=(Type&& other)
 {
-    return Type(other.Value);
+    Value = other.Value;
+    return *this;
 }
