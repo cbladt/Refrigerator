@@ -13,7 +13,7 @@
 static const constexpr FloatingType CompressorCylinders = 1;
 static const constexpr FloatingType CompressorBoreMm = 5;
 static const constexpr FloatingType CompressorStrokeMm = 3;
-static Volume CompressorVolume = Volume::FromM3(CompressorCylinders * ((3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm) / 1000000000));
+static Volume CompressorVolume = Volume::FromMm3(CompressorCylinders * (3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm));
 
 static Enthalpy InitialDischargeEnthalpy = Enthalpy::FromKjPrKg(260);
 static Pressure InitialDischargePressure = Pressure::FromBar(6);
@@ -35,8 +35,8 @@ static constexpr auto PipeVolume()
 
 int main()
 {    
-    Container_t suction(PipeVolume<100, 10>(), Mass::FromKg(3));
-    Container_t discharge(PipeVolume<100, 10>(), Mass::FromKg(7));
+    Container_t suction(PipeVolume<100, 10>(), Mass::FromKg(30));
+    Container_t discharge(PipeVolume<100, 10>(), Mass::FromKg(70));
     /*Container afterCondensor(PipeVolume<30, 1>());
     Container beforeEvaporator(PipeVolume<10, 1>());*/
 

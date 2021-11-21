@@ -82,7 +82,6 @@ public:
 
 	Temperature GetTemperatureK() const
 	{
-
         return Calculator::TemperatureFromPressureAndEnthalpy(GetPressure(), GetEnthalpy());
 	}
 
