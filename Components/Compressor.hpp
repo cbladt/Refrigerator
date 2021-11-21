@@ -6,6 +6,7 @@
 #include <Types/Percent.hpp>
 #include <Types/Enthropy.hpp>
 #include <Types/Enthalpy.hpp>
+#include <Types/Milliseconds.hpp>
 
 #include "Container.hpp"
 #include "Helpers/Map.hpp"
@@ -31,22 +32,10 @@ public:
 		_capacity = capacity;
 	}
 
-	auto Displace()
-	{     
-        auto suctionEnthalpy = _suction.GetFluid().GetEnthalpy();
-        auto suctionPressure = _suction.GetFluid().GetPressure();
-
-		auto flow = DoDisplacement();
-
-        auto enthropy = EnthropyCalculation(suctionEnthalpy, suctionPressure);
-
-		auto enthalpy = EnthalpyCalculation(enthropy);
-
-        _suction.GetFluid().SubtractEnthalpy(enthalpy);
-		_discharge.GetFluid().AddEnthalpy(enthalpy);
-
-		return flow;
-	}
+    auto Service(Milliseconds tick)
+    {
+        return Displace(tick);
+    }
 
 private:
 	Rpm _minRpm;
@@ -69,33 +58,29 @@ private:
 		return rpm;
 	}
 
-	auto DoDisplacement()
-	{
-        auto density = _suction.GetFluid().GetGasDensity();
-        auto displacement = Volume::FromM3(density.GetKgM3() * _volume.GetM3() * GetRpm());
+    auto Displace(Milliseconds tick)
+    {
+        auto suctionEnthalpy = _suction.GetFluid().GetEnthalpy();
+        auto suctionPressure = _suction.GetFluid().GetPressure();
+        auto suctionDensity = _suction.GetFluid().GetGasDensity();
+
+        auto rpm = (GetRpm() / 60 / 1000) * tick;
+        auto flowPrMs = Volume::FromM3(suctionDensity.GetKgM3() * _volume.GetM3() * rpm);
+
+        auto displacement = flowPrMs * Volume::FromM3(tick);
+
         auto flow = _suction.Out(_suction.GetFluid().GetPressure().GetBar() * displacement.GetM3());
         _discharge.In(flow.GetKg() / _discharge.GetFluid().GetPressure().GetBar());
 
-		return flow;
-	}
-
-    auto EnthropyCalculation(Enthalpy enthalpy, Pressure pressure)
-	{
-        auto enthropy = FluidCalculator::EnthropyFromEnthalpyAndPressure(enthalpy, pressure);
+        auto enthropy = FluidCalculator::EnthropyFromEnthalpyAndPressure(suctionEnthalpy, suctionPressure);
         enthropy = Enthropy::FromJPrKgPrK(enthropy.GetJPrKgPrK() * 0.8);
 
-        std::cout << "enthropy " << std::to_string(enthropy.GetJPrKgPrK()) << std::endl;
-
-		return enthropy;
-	}
-
-    auto EnthalpyCalculation(Enthropy enthropy)
-	{
         auto enthalpy = FluidCalculator::EnthalpyFromPressureAndEnthropy(_discharge.GetFluid().GetPressure(), enthropy);
 
-        std::cout << "enthalpy " << std::to_string(enthalpy.GetKjPrKg()) << std::endl;
+        _suction.GetFluid().SubtractEnthalpy(enthalpy);
+        _discharge.GetFluid().AddEnthalpy(enthalpy);
 
-		return enthalpy;
-	}
+        return flow;
+    }
 };
 

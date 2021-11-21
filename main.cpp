@@ -1,4 +1,6 @@
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include <Types/FloatingType.hpp>
 #include <Types/Volume.hpp>
@@ -11,8 +13,8 @@
 #include <FluidCalculator.hpp>
 
 static const constexpr FloatingType CompressorCylinders = 1;
-static const constexpr FloatingType CompressorBoreMm = 5;
-static const constexpr FloatingType CompressorStrokeMm = 3;
+static const constexpr FloatingType CompressorBoreMm = 55;
+static const constexpr FloatingType CompressorStrokeMm = 39.3;
 static Volume CompressorVolume = Volume::FromMm3(CompressorCylinders * (3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm));
 
 static Enthalpy InitialDischargeEnthalpy = Enthalpy::FromKjPrKg(260);
@@ -70,12 +72,14 @@ int main()
 
     for (auto n = 0; n < 2; n++)
     {
-        auto flow = compressor.Displace();
+        auto flow = compressor.Service(1);
 
         //if (n % 1000 == 0)
         {
             debug(flow);
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     return 0;

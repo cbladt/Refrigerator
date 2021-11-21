@@ -26,11 +26,11 @@ public:
 
     static constexpr Enthalpy FromKjPrKg(FloatingType kjPrKg)
     {
-        return Enthalpy(kjPrKg * 1);
+        return Enthalpy(kjPrKg);
     }
     FloatingType GetKjPrKg() const
     {
-        return _jPrG * 1;
+        return _jPrG;
     }
 
     static constexpr Enthalpy FromJPrKg(FloatingType jPrKg)
