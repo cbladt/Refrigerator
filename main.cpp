@@ -13,13 +13,13 @@
 static const constexpr FloatingType CompressorCylinders = 1;
 static const constexpr FloatingType CompressorBoreMm = 55;
 static const constexpr FloatingType CompressorStrokeMm = 39.3;
-static const constexpr Volume CompressorVolume = Volume::FromM3(CompressorCylinders * ((3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm) / 1000000000));
+static Volume CompressorVolume = Volume::FromM3(CompressorCylinders * ((3.14f * (CompressorBoreMm*CompressorBoreMm) * CompressorStrokeMm) / 1000000000));
 
-static const constexpr Enthalpy InitialDischargeEnthalpy = Enthalpy::FromKjPrKg(260);
-static const constexpr Pressure InitialDischargePressure = Pressure::FromBar(6);
+static Enthalpy InitialDischargeEnthalpy = Enthalpy::FromKjPrKg(260);
+static Pressure InitialDischargePressure = Pressure::FromBar(6);
 
-static const constexpr Enthalpy InitialSuctionEnthalpy = Enthalpy::FromKjPrKg(400);
-static const constexpr Pressure InitialSuctionPressure = Pressure::FromBar(4);
+static Enthalpy InitialSuctionEnthalpy = Enthalpy::FromKjPrKg(400);
+static Pressure InitialSuctionPressure = Pressure::FromBar(4);
 
 using Calculator_t = FluidCalculator<1341>;
 using Fluid_t = Fluid<Calculator_t>;
@@ -40,7 +40,7 @@ int main()
     /*Container afterCondensor(PipeVolume<30, 1>());
     Container beforeEvaporator(PipeVolume<10, 1>());*/
 
-    Compressor compressor(1000, 3000, 80, CompressorVolume, suction, discharge);
+    Compressor compressor(1000, 3000, Percent(80), CompressorVolume, suction, discharge);
     compressor.SetCapacity(1);
 
     suction.GetFluid().SetEnthalpy(InitialSuctionEnthalpy);
@@ -61,7 +61,7 @@ int main()
         std::cout << "HSuc\t" << std::to_string(suction.GetFluid().GetEnthalpy().GetKjPrKg()) << std::endl;
         std::cout << "PDis\t" << std::to_string(discharge.GetFluid().GetPressure().GetBar()) << std::endl;
         std::cout << "HDis\t" << std::to_string(discharge.GetFluid().GetEnthalpy().GetKjPrKg()) << std::endl;
-        std::cout << "Flow\t" << std::to_string(flow) << std::endl << std::endl;
+        //std::cout << "Flow\t" << std::to_string(flow) << std::endl << std::endl;
     };
 
     debug(-1);

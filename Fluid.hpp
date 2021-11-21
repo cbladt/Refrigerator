@@ -31,30 +31,33 @@ public:
 
 	void SetPressure(Pressure pressure)
 	{
-		pressure = Limit<Pressure>(pressure, 0, std::numeric_limits<Pressure>::max());
-		_pressure.store(pressure);
+        _pressure = Limit<Pressure>(pressure, 0, std::numeric_limits<Pressure>::max());
 	}
 
 	Pressure GetPressure() const
 	{
-		return _pressure.load();
+        return _pressure;
 	}
 
 
 	void SetEnthalpy(Enthalpy enthalpy)
 	{
-		enthalpy = Limit<Enthalpy>(enthalpy, 0, std::numeric_limits<Enthalpy>::max());
-		_enthalpy.store(enthalpy);
+        _enthalpy = Limit<Enthalpy>(enthalpy, 0, std::numeric_limits<Enthalpy>::max());
 	}
 
 	void AddEnthalpy(Enthalpy enthalpy)
 	{        
-		SetEnthalpy(enthalpy + _enthalpy.load());
+        SetEnthalpy(enthalpy + _enthalpy);
 	}
+
+    void SubtractEnthalpy(Enthalpy enthalpy)
+    {
+        SetEnthalpy(enthalpy - _enthalpy);
+    }
 
 	Enthalpy GetEnthalpy() const
 	{
-		return _enthalpy.load();
+        return _enthalpy;
 	}
 
 
@@ -70,6 +73,6 @@ public:
 	}
 
 private:
-	std::atomic<Pressure> _pressure;
-	std::atomic<Enthalpy> _enthalpy;
+    Pressure _pressure;
+    Enthalpy _enthalpy;
 };

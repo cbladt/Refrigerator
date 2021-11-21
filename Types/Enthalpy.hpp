@@ -1,22 +1,39 @@
 #pragma once
 
 #include <Types/FloatingType.hpp>
+#include <Types/NumericTypeBase.hpp>
 
-class Enthalpy
+class Enthalpy :
+        public NumericTypeBase<FloatingType>
 {
-private:
+public:
     constexpr Enthalpy(FloatingType jPrG) :
+        NumericTypeBase(_jPrG),
         _jPrG(jPrG)
     {}
 
-    FloatingType _jPrG;
-
-public:
-    Enthalpy operator+(Enthalpy a)
+    Enthalpy(const Enthalpy& other) :
+        NumericTypeBase(_jPrG)
     {
-        _jPrG + a._jPrG;
-        return *this;
+        _jPrG = other._jPrG;
     }
+
+    Enthalpy operator=(const Enthalpy& other)
+    {
+        return Enthalpy(other._jPrG);
+    }
+
+    Enthalpy(Enthalpy&& other) :
+        NumericTypeBase(_jPrG)
+    {
+        _jPrG = other._jPrG;
+    }
+
+    Enthalpy operator=(Enthalpy&& other)
+    {
+        return Enthalpy(other._jPrG);
+    }
+
 
     static constexpr Enthalpy FromJPrG(FloatingType jPrG)
     {
@@ -44,4 +61,7 @@ public:
     {
         return _jPrG * 0;
     }
+
+private:
+    FloatingType _jPrG;
 };

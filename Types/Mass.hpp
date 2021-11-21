@@ -1,31 +1,39 @@
 #pragma once
 
 #include <Types/FloatingType.hpp>
+#include <Types/NumericTypeBase.hpp>
 
-class Mass
+class Mass :
+        public NumericTypeBase<FloatingType>
 {
-private:
+public:
     constexpr Mass(FloatingType kg) :
+        NumericTypeBase(_kg),
         _kg(kg)
     {}
 
-    FloatingType _kg;
-
-public:
-    bool operator>(Mass a)
+    Mass(const Mass& other) :
+        NumericTypeBase(_kg)
     {
-        return _kg > a._kg;
+        _kg = other._kg;
     }
 
-    Mass operator-(Mass a)
+    Mass operator=(const Mass& other)
     {
-        return Mass(_kg - a._kg);
+        return Mass(other._kg);
     }
 
-    Mass operator+(Mass a)
+    Mass(Mass&& other) :
+        NumericTypeBase(_kg)
     {
-        return Mass(_kg + a._kg);
+        _kg = other._kg;
     }
+
+    Mass operator=(Mass&& other)
+    {
+        return Mass(other._kg);
+    }
+
 
     static constexpr Mass FromKg(FloatingType kg)
     {
@@ -35,4 +43,7 @@ public:
     {
         return _kg;
     }
+
+private:
+    FloatingType _kg;
 };

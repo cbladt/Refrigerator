@@ -4,6 +4,8 @@
 
 #include <Types/Rpm.hpp>
 #include <Types/Percent.hpp>
+#include <Types/Enthropy.hpp>
+#include <Types/Enthalpy.hpp>
 
 #include "Container.hpp"
 #include "Helpers/Map.hpp"
@@ -40,7 +42,7 @@ public:
 
 		auto enthalpy = EnthalpyCalculation(enthropy);
 
-		_suction.GetFluid().AddEnthalpy(enthalpy / -1);
+        _suction.GetFluid().SubtractEnthalpy(enthalpy);
 		_discharge.GetFluid().AddEnthalpy(enthalpy);
 
 		return flow;
@@ -69,31 +71,29 @@ private:
 
 	auto DoDisplacement()
 	{
-        auto density = _suction.GetFluid().GetGasDensity();
-        auto displacement = (density * _volume * GetRpm());
-		auto flow = _suction.Out(_suction.GetFluid().GetPressure() * displacement);
-		_discharge.In(flow / _discharge.GetFluid().GetPressure());
+        auto density = _suction.GetFluid().GetGasDensity().GetKgM3();
+        auto displacement = Volume::FromM3(density * _volume.GetM3() * GetRpm());
+        auto flow = _suction.Out(_suction.GetFluid().GetPressure().GetBar() * displacement.GetM3());
+        _discharge.In(flow.GetKg() / _discharge.GetFluid().GetPressure().GetBar());
 
 		return flow;
 	}
 
-	template<typename T1, typename T2>
-	auto EnthropyCalculation(T1 suctionEnthalpyInJoulePrKg, T2 suctionPressureInPascal)
+    auto EnthropyCalculation(Enthalpy enthalpy, Pressure pressure)
 	{
-        auto enthropy = FluidCalculator::EnthropyFromEnthalpyAndPressure(suctionEnthalpyInJoulePrKg, suctionPressureInPascal);
-		enthropy *= (_efficiency / 100);
+        auto enthropy = FluidCalculator::EnthropyFromEnthalpyAndPressure(enthalpy, pressure);
+        enthropy = Enthropy::FromJPrKgPrK(enthropy.GetJPrKgPrK() * 0.8);
 
-		std::cout << "enthropy " << std::to_string(enthropy) << std::endl;
+        std::cout << "enthropy " << std::to_string(enthropy.GetJPrKgPrK()) << std::endl;
 
 		return enthropy;
 	}
 
-	template<typename T1>
-	auto EnthalpyCalculation(T1 enthropy)
+    auto EnthalpyCalculation(Enthropy enthropy)
 	{
         auto enthalpy = FluidCalculator::EnthalpyFromPressureAndEnthropy(_discharge.GetFluid().GetPressure(), enthropy);
 
-		std::cout << "enthalpy " << std::to_string(enthalpy) << std::endl;
+        std::cout << "enthalpy " << std::to_string(enthalpy.GetKjPrKg()) << std::endl;
 
 		return enthalpy;
 	}

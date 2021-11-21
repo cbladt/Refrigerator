@@ -12,9 +12,10 @@ public:
     using Fluid = Fluid_t;
 
 	Container(Volume volume, Mass initialMass) :
-		_volume(volume)
+        _volume(volume),
+        _mass(0)
 	{
-		SetMass(initialMass);
+        SetMass(initialMass.GetKg());
 	}
 	~Container() = default;
 
@@ -31,9 +32,9 @@ public:
 			request = _mass;
 		}
 
-		if ((_mass - request) > 0.000001f)
+        if ((_mass - request) > Mass::FromKg(0))
 		{
-			SetMass(_mass - request);
+            SetMass(_mass - request);
             return 0;
 		}
 		else
@@ -62,9 +63,10 @@ private:
 	Mass _mass;
 	Fluid _fluid;
 
-    void SetMass(Mass& newMass)
+    template <typename T>
+    void SetMass(T newMass)
 	{
-		_mass = newMass;
+        _mass = Mass::FromKg(newMass);
         _fluid.SetPressure(Pressure::FromBar(_mass.GetKg() / _volume.GetM3()));
 	}
 };
