@@ -19,15 +19,27 @@ public:
     {
         return Volume(m3);
     }
+
     FloatingType GetM3() const
     {
         return _m3;
+    }
+
+    static constexpr Volume FromCm3(FloatingType cm3)
+    {
+        return Volume(cm3 / 1000000);
+    }
+
+    FloatingType GetCm3() const
+    {
+        return _m3 * 1000000;
     }
 
     static constexpr Volume FromMm3(FloatingType mm3)
     {
         return Volume(mm3 / 1000000000);
     }
+
     FloatingType GetMm3() const
     {
         return _m3 * 1000000000;

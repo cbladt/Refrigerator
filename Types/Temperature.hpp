@@ -19,9 +19,15 @@ public:
     {
         return Temperature(kelvin);
     }
+
     FloatingType GetKelvin() const
     {
         return _kelvin;
+    }
+
+    FloatingType GetCelcius() const
+    {
+        return _kelvin - 273.15;
     }
 
 private:

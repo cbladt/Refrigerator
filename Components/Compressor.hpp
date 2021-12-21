@@ -6,7 +6,8 @@
 #include <Types/Percent.hpp>
 #include <Types/Enthropy.hpp>
 #include <Types/Enthalpy.hpp>
-#include <Types/Milliseconds.hpp>
+#include <Types/Seconds.hpp>
+#include <Types/Volume.hpp>
 
 #include "Container.hpp"
 #include "Helpers/Map.hpp"
@@ -17,22 +18,22 @@ class Compressor
 public:
     using FluidCalculator = typename SuctionPort::Fluid::Calculator;
 
-	Compressor(Rpm minRpm, Rpm maxRpm, Percent efficiency, Volume volume, SuctionPort& suction, DischargePort& discharge) :
-		_minRpm(minRpm),
-		_maxRpm(maxRpm),
-		_efficiency(efficiency),
-		_volume(volume),
-		_suction(suction),
-		_discharge(discharge),
-		_capacity(0)
-	{}
+    Compressor(Rpm minRpm, Rpm maxRpm, Percent efficiency, Volume volume, SuctionPort& suction, DischargePort& discharge) :
+            _minRpm(minRpm),
+            _maxRpm(maxRpm),
+            _efficiency(efficiency),
+            _volume(volume),
+            _suction(suction),
+            _discharge(discharge),
+            _capacity(0)
+    {}
 
-	void SetCapacity(Percent capacity)
-	{
-		_capacity = capacity;
-	}
+    void SetCapacity(Percent capacity)
+    {
+            _capacity = capacity;
+    }
 
-    auto Service(Milliseconds tick)
+    auto Service(Seconds tick)
     {
         return Displace(tick);
     }
@@ -46,39 +47,45 @@ private:
 	DischargePort& _discharge;
 	Percent _capacity;
 
-	auto GetRpm() const
-	{
+    auto GetRpm() const
+    {
         auto rpm = Map<Rpm>(_capacity, PercentMin, PercentMax, _minRpm, _maxRpm);
 
-                if (_capacity == 0)
-                {
-                        rpm = 0;
-                }
+        if (_capacity == 0)
+        {
+          rpm = 0;
+        }
 
-		return rpm;
-	}
+        return rpm;
+    }
 
-    auto Displace(Milliseconds tick)
+    auto GetRevolutionsPerSecond() const
     {
-        auto suctionEnthalpy = _suction.GetFluid().GetEnthalpy();
-        auto suctionPressure = _suction.GetFluid().GetPressure();
-        auto suctionDensity = _suction.GetFluid().GetGasDensity();
+        return GetRpm() / 60;
+    }
 
-        auto rpm = (GetRpm() / 60 / 1000) * tick;
-        auto flowPrMs = Volume::FromM3(suctionDensity.GetKgM3() * _volume.GetM3() * rpm);
+    auto Displace(Seconds tick)
+    {        
+        auto dSuc = _suction.GetFluid().GetGasDensity();
+        auto pSuc = _suction.GetFluid().GetPressure();
+        auto hSuc = _suction.GetFluid().GetEnthalpy();
+        auto pDis = _discharge.GetFluid().GetPressure();
 
-        auto displacement = flowPrMs * Volume::FromM3(tick);
+        auto timefactor = GetRevolutionsPerSecond() * tick;
+        auto displacement = Volume::FromM3(dSuc.GetKgM3() * _volume.GetM3() * timefactor);
 
-        auto flow = _suction.Out(_suction.GetFluid().GetPressure().GetBar() * displacement.GetM3());
-        _discharge.In(flow.GetKg() / _discharge.GetFluid().GetPressure().GetBar());
+        auto flow = _suction.Out(pSuc.GetBar() * displacement.GetM3());
+        _discharge.In(flow);
 
-        auto enthropy = FluidCalculator::EnthropyFromEnthalpyAndPressure(suctionEnthalpy, suctionPressure);
-        enthropy = Enthropy::FromJPrKgPrK(enthropy.GetJPrKgPrK() * 0.8);
+        if (flow > 0.00001)
+        {
+            auto enthropy = FluidCalculator::EnthropyFromEnthalpyAndPressure(hSuc, pSuc);
+            //enthropy = Enthropy::FromJPrKgPrK(enthropy.GetJPrKgPrK() * 0.8);
 
-        auto enthalpy = FluidCalculator::EnthalpyFromPressureAndEnthropy(_discharge.GetFluid().GetPressure(), enthropy);
+            auto hDis = FluidCalculator::EnthalpyFromPressureAndEnthropy(pDis, enthropy);
 
-        _suction.GetFluid().SubtractEnthalpy(enthalpy);
-        _discharge.GetFluid().AddEnthalpy(enthalpy);
+            _discharge.GetFluid().SetEnthalpy(hDis);
+        }
 
         return flow;
     }
